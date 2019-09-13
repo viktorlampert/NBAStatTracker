@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NBA App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        #mainDiv
+        {
+            overflow:hidden;
+            height:100%;
+        }
+        #stats
+        {
+            margin-top:1%;
+            display: inline-block;
+            width:500px;
+            margin-left:22%;
+        }
+        #leftLogo
+        {
+            display:inline-block;
+            height:1000px;
+            float:left;
+            background-color: #0253A4;
+            width:300px;
+        }
+        #rightLogo
+        {
+            display:inline-block;
+            height:1000px;
+            background-color: #0253A4;
+            float:right;
+            width:300px;
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="mainDiv">
+
+<div id="stats">
+    <p id="title">
+        Enter Player's Full Name:
+    </p>
+    <input type="text" id="playerNameSearch"/>
+
+    <button type="button" class="btn btn-primary" onClick="doFetch()" id="searchButton">Search</button>
+
+    <p id="playerName">
+        Name:
+    </p>
+    <p id="averagePoints">
+        Points:
+    </p>
+    <p id="averageRebounds">
+        Rebounds:
+    </p>
+    <p id="averageAssists">
+        Assists:
+    </p>
+</div>
+    <div id="leftLogo">
+        <img src="images/nba-logo.jpg" alt="NBA Logo" width="300px">
+    </div>
+    <div id="rightLogo">
+        <img src="images/nba-logo.jpg" alt="NBA Logo" width="300px">
+    </div>
+</div>
+<script>
+var searchClick = document.getElementById("searchButton").addEventListener('Click',doFetch());
+var teamSelection;
+var auth = "Basic " + "MDA5MGI5MDUtMzAyNS00ZTRkLThiNjEtMTRhYzM5Ok1ZU1BPUlRTRkVFRFM=";
+var index = 0;
+
+
+function doFetch(ev){
+    var uri ="https://api.mysportsfeeds.com/v2.1/pull/nba/latest/player_stats_totals.json";
+    var h = new Headers();
+    h.append('Accept', 'application/json');
+    h.append("Authorization", auth);
+    var request = new Request(uri,{
+        method: 'GET',
+        headers: h,
+    });
+    var playerName = getPlayerName();
+    var split = playerName.split(" ");
+    var playerFirstName = split[0];
+    var playerLastName = split[1];
+    //console.log(currentPlayer);
+    fetch(request)
+        .then(function(res){
+            return res.json();
+        })
+        .then(function(data) {
+            var arrayMax = (Object.keys(data.playerStatsTotals).length) - 1;
+            while (index <= arrayMax)
+            {
+                if (playerFirstName.toLowerCase() == (data.playerStatsTotals[index].player.firstName).toLowerCase() && playerLastName.toLowerCase() == (data.playerStatsTotals[index].player.lastName).toLowerCase())
+                {
+                    //console.log(document.getElementById("playerName"));
+                    document.getElementById("playerName").innerHTML = data.playerStatsTotals[index].player.firstName + " " + data.playerStatsTotals[index].player.lastName;
+                    document.getElementById("averagePoints").innerHTML = "Points:" + data.playerStatsTotals[index].stats.offense.pts;
+                    document.getElementById("averageRebounds").innerHTML = "Rebounds:" + data.playerStatsTotals[index].stats.rebounds.reb;
+                    document.getElementById("averageAssists").innerHTML = "Assists:" + data.playerStatsTotals[index].stats.offense.ast;
+                    break
+                }
+                else
+                {
+                    index++;
+                }
+
+
+            }
+
+            if (index >= arrayMax)
+            {
+                document.getElementById("playerName").innerHTML = "Player not found, make sure name is correct!";
+            }
+            index = 0;
+            //console.log(data);
+            //console.log(currentPlayer);
+            //console.log(index);
+
+
+        });
+
+}
+
+function getPlayerName(){
+    return document.getElementById("playerNameSearch").value;
+}
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
